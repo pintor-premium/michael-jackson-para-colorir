@@ -203,7 +203,7 @@ export default function DrawingsCatalogPage() {
                     <img
                       src={drawing.path}
                       alt={drawing.name}
-                      className="w-full h-full object-contain p-4 invert"
+                      className="w-full h-full object-contain p-4"
                     />
 
                     {/* Progress overlay */}
