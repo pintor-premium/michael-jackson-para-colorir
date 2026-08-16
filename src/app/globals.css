@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-dark: #0b0d14;
+  --color-bg-card: #151b2c;
+  --color-gold: #d2ad55;
+  --color-purple: #7557ff;
+  --color-blue-accent: #418bff;
+  --color-red-accent: #f04f5f;
+  --color-green-accent: #42c983;
+  --color-yellow-accent: #ffd84d;
+  --color-gray-light: #e9ecf2;
+
+  --font-fredoka: var(--font-fredoka), sans-serif;
+  --font-sans: var(--font-inter), sans-serif;
+}
+
+:root {
+  --background: #0b0d14;
+  --foreground: #ffffff;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom Scrollbar for a premium look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b0d14;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e263d;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2a3554;
+}
+
+/* Kid-friendly Card Pop-up Effect */
+.card-kid {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
+}
+
+.card-kid:hover {
+  transform: translateY(-4px) scale(1.01);
+}
+
+.btn-kid {
+  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.2s ease;
+}
+
+.btn-kid:active {
+  transform: scale(0.95);
+}
+
+/* Custom background animations */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(3deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Acessibilidade - Foco Visível */
+*:focus-visible {
+  outline: 3px solid #7557ff;
+  outline-offset: 2px;
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Michael Jackson",
+  "short_name": "MJ Color",
+  "description": "Meu Livro de Colorir - Desenhos e pinturas inspirados em Michael Jackson para colorir offline.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0d14",
+  "theme_color": "#0b0d14",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
