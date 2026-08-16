@@ -114,6 +114,7 @@ export default function EditorPage() {
           const newPainting: Painting = {
             id: uniqueId,
             drawingId: drawingId,
+            baseImagePath: drawingInfo.path,
             title: `Pintura ${allList.length + 1}`,
             canvasData: "",
             progress: 0,
@@ -141,6 +142,21 @@ export default function EditorPage() {
             setError(true);
             setLoading(false);
             return;
+          }
+          if (p.canvasData && p.baseImagePath !== drawingInfo.path) {
+            p.canvasData = "";
+            p.progress = 0;
+            p.isCompleted = 0;
+            p.completedAt = undefined;
+            p.baseImagePath = drawingInfo.path;
+            await db.paintings.update(p.id, {
+              canvasData: "",
+              progress: 0,
+              isCompleted: 0,
+              completedAt: undefined,
+              baseImagePath: drawingInfo.path,
+              updatedAt: Date.now(),
+            });
           }
           setPainting(p);
           setDrawing(drawingInfo);
@@ -323,6 +339,7 @@ export default function EditorPage() {
       }
 
       await db.paintings.update(painting.id, {
+        baseImagePath: drawing.path,
         canvasData: canvasUrl,
         progress,
         updatedAt: Date.now(),
@@ -330,7 +347,7 @@ export default function EditorPage() {
 
       if (sequence !== autoSaveSequenceRef.current) return;
 
-      setPainting((prev) => (prev ? { ...prev, canvasData: canvasUrl, progress } : null));
+      setPainting((prev) => (prev ? { ...prev, baseImagePath: drawing.path, canvasData: canvasUrl, progress } : null));
       setSaveStatus("salvo");
     } catch (e) {
       if (sequence !== autoSaveSequenceRef.current) return;

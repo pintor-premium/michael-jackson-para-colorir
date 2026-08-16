@@ -1,27 +1,28 @@
 import Dexie, { type Table } from "dexie";
 
 export interface Painting {
-  id: string; // ID único (ex: 'silhouette_1_1723790123')
-  drawingId: string; // ID do desenho base (ex: 'silhouette_1')
-  title: string; // Título customizado (ex: 'Meu Astro Colorido 1')
-  canvasData: string; // Data URL (Base64) da imagem pintada
-  progress: number; // Porcentagem concluída (0 a 100)
-  isFavorite: number; // 0 ou 1
-  isCompleted: number; // 0 ou 1
-  completedAt?: number; // Timestamp
-  updatedAt: number; // Timestamp
+  id: string;
+  drawingId: string;
+  baseImagePath?: string;
+  title: string;
+  canvasData: string;
+  progress: number;
+  isFavorite: number;
+  isCompleted: number;
+  completedAt?: number;
+  updatedAt: number;
 }
 
 export interface UserAchievement {
-  id: string; // Código da conquista (ex: 'first_painting')
-  unlocked: number; // 0 ou 1
-  unlockedAt?: number; // Timestamp
-  progress: number; // Progresso atual
+  id: string;
+  unlocked: number;
+  unlockedAt?: number;
+  progress: number;
 }
 
 export interface AppSetting {
-  key: string; // Chave da configuração
-  value: any; // Valor
+  key: string;
+  value: any;
 }
 
 class MJColorDatabase extends Dexie {

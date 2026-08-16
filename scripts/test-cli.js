@@ -52,17 +52,17 @@ if (drawingIds.length !== 19) {
 // Validar integridade dos arquivos em public/drawings
 console.log("3. Validando existência dos arquivos físicos de contorno...");
 const publicPath = path.join(__dirname, "../public");
-const folderPath = path.join(publicPath, "drawings", "michael");
+const folderPath = path.join(publicPath, "drawings", "michael-atual");
 
 if (!fs.existsSync(folderPath)) {
-  console.error("❌ ERRO: Pasta public/drawings/michael não existe.");
+  console.error("❌ ERRO: Pasta public/drawings/michael-atual não existe.");
   process.exit(1);
 }
 
 const files = fs.readdirSync(folderPath).filter((f) => f.endsWith(".jpg"));
-console.log(`   - Pasta michael: ${files.length} arquivos JPG encontrados.`);
+console.log(`   - Pasta michael-atual: ${files.length} arquivos JPG encontrados.`);
 if (files.length !== 19) {
-  console.error("❌ ERRO: A pasta public/drawings/michael precisa ter exatamente 19 JPGs.");
+  console.error("❌ ERRO: A pasta public/drawings/michael-atual precisa ter exatamente 19 JPGs.");
   process.exit(1);
 }
 
