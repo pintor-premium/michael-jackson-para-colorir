@@ -59,6 +59,14 @@ export default function EditorPage() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
   const autoSaveSequenceRef = useRef(0);
+  const multiTouchActiveRef = useRef(false);
+  const pendingSingleTouchRef = useRef<{
+    startX: number;
+    startY: number;
+    lastX: number;
+    lastY: number;
+    moved: boolean;
+  } | null>(null);
 
   // Carregar preferências
   const preferences = useLiveQuery(async () => {
@@ -748,6 +756,116 @@ export default function EditorPage() {
     }
   };
 
+  const handleMobileTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+
+    if (e.touches.length >= 2) {
+      multiTouchActiveRef.current = true;
+      pendingSingleTouchRef.current = null;
+      setIsDrawing(false);
+      setIsPanning(true);
+
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      setPinchStartDist(dist);
+
+      const midX = (t1.clientX + t2.clientX) / 2;
+      const midY = (t1.clientY + t2.clientY) / 2;
+      setPanStart({ x: midX - pan.x, y: midY - pan.y });
+      return;
+    }
+
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      pendingSingleTouchRef.current = {
+        startX: touch.clientX,
+        startY: touch.clientY,
+        lastX: touch.clientX,
+        lastY: touch.clientY,
+        moved: false,
+      };
+    }
+  };
+
+  const handleMobileTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault();
+
+    if (e.touches.length >= 2) {
+      multiTouchActiveRef.current = true;
+      pendingSingleTouchRef.current = null;
+      setIsDrawing(false);
+      setIsPanning(true);
+
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+
+      if (pinchStartDist !== null) {
+        const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+        const factor = dist / pinchStartDist;
+        setZoom((prev) => Math.max(0.5, Math.min(5.0, prev * factor)));
+        setPinchStartDist(dist);
+      }
+
+      const midX = (t1.clientX + t2.clientX) / 2;
+      const midY = (t1.clientY + t2.clientY) / 2;
+      setPan({ x: midX - panStart.x, y: midY - panStart.y });
+      return;
+    }
+
+    if (e.touches.length === 1 && !multiTouchActiveRef.current) {
+      const touch = e.touches[0];
+      const pendingTouch = pendingSingleTouchRef.current;
+      if (!pendingTouch) return;
+
+      const distance = Math.hypot(touch.clientX - pendingTouch.startX, touch.clientY - pendingTouch.startY);
+      pendingSingleTouchRef.current = {
+        ...pendingTouch,
+        lastX: touch.clientX,
+        lastY: touch.clientY,
+        moved: pendingTouch.moved || distance > 3,
+      };
+
+      if (activeTool === "bucket" || activeTool === "picker") return;
+
+      if (!isDrawing) {
+        handleDrawStart(pendingTouch.startX, pendingTouch.startY);
+      }
+      handleDrawMove(touch.clientX, touch.clientY);
+    }
+  };
+
+  const handleMobileTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
+
+    if (e.touches.length > 0) {
+      if (multiTouchActiveRef.current) {
+        setIsDrawing(false);
+      }
+      return;
+    }
+
+    if (multiTouchActiveRef.current || isPanning) {
+      multiTouchActiveRef.current = false;
+      pendingSingleTouchRef.current = null;
+      setIsDrawing(false);
+      setIsPanning(false);
+      setPinchStartDist(null);
+      return;
+    }
+
+    const pendingTouch = pendingSingleTouchRef.current;
+    pendingSingleTouchRef.current = null;
+
+    if (pendingTouch && !pendingTouch.moved) {
+      handleDrawStart(pendingTouch.startX, pendingTouch.startY);
+      handleDrawEnd();
+      return;
+    }
+
+    handleDrawEnd();
+  };
+
   // 9. CONCLUSÃO E CELEBRAÇÃO (CONFETE E CONQUISTAS)
   const handleCompleteDrawing = async () => {
     if (!painting) return;
@@ -1119,9 +1237,10 @@ export default function EditorPage() {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
+            onTouchStart={handleMobileTouchStart}
+            onTouchMove={handleMobileTouchMove}
+            onTouchEnd={handleMobileTouchEnd}
+            onTouchCancel={handleMobileTouchEnd}
           >
             {/* 1. Paint Canvas (Bottom Layer) */}
             <canvas
