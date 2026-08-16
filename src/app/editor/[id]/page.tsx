@@ -1309,13 +1309,6 @@ export default function EditorPage() {
             <canvas ref={hiddenOutlineCanvasRef} className="hidden" />
           </div>
 
-          {/* Floating toggle for Pan mode (Shift shortcut info) */}
-          <div className="absolute bottom-4 left-4 bg-bg-card/90 backdrop-blur-sm border border-gray-800 px-3 py-2 rounded-2xl z-20 text-[10px] text-gray-400 font-sans flex items-center gap-2">
-            <div className="px-1.5 py-0.5 bg-bg-dark rounded border border-gray-700 font-bold">Shift</div>
-            <span>+ Arrastar com Mouse para Mover</span>
-            <span className="hidden sm:inline">•</span>
-            <span className="hidden sm:inline">Pressione 2 dedos na tela para dar zoom/mover</span>
-          </div>
         </section>
 
         {/* RIGHT PALETTE (Desktop, ocultável no Modo Zen) */}
