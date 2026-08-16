@@ -52,6 +52,8 @@ export default function EditorPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [confettis, setConfettis] = useState<{ id: number; left: number; delay: number; color: string; duration: number }[]>([]);
+  const [canvasAspectRatio, setCanvasAspectRatio] = useState("1 / 1");
+  const [isCanvasLandscape, setIsCanvasLandscape] = useState(false);
 
   // Desenho ativo
   const [isDrawing, setIsDrawing] = useState(false);
@@ -166,6 +168,8 @@ export default function EditorPage() {
       paintCanvas.height = h;
       hiddenOutline.width = w;
       hiddenOutline.height = h;
+      setCanvasAspectRatio(`${w} / ${h}`);
+      setIsCanvasLandscape(w >= h);
 
       // Desenhar o contorno no canvas auxiliar oculto
       outlineCtx.drawImage(outlineImg, 0, 0, w, h);
@@ -452,10 +456,39 @@ export default function EditorPage() {
     if (!paintCanvas) return null;
 
     const rect = paintCanvas.getBoundingClientRect();
-    const x = Math.floor(((clientX - rect.left) / rect.width) * paintCanvas.width);
-    const y = Math.floor(((clientY - rect.top) / rect.height) * paintCanvas.height);
+    if (rect.width === 0 || rect.height === 0 || paintCanvas.width === 0 || paintCanvas.height === 0) {
+      return null;
+    }
+
+    const canvasRatio = paintCanvas.width / paintCanvas.height;
+    const rectRatio = rect.width / rect.height;
+    let visibleWidth = rect.width;
+    let visibleHeight = rect.height;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    if (rectRatio > canvasRatio) {
+      visibleWidth = rect.height * canvasRatio;
+      offsetX = (rect.width - visibleWidth) / 2;
+    } else {
+      visibleHeight = rect.width / canvasRatio;
+      offsetY = (rect.height - visibleHeight) / 2;
+    }
+
+    const localX = clientX - rect.left - offsetX;
+    const localY = clientY - rect.top - offsetY;
+
+    if (localX < 0 || localY < 0 || localX > visibleWidth || localY > visibleHeight) {
+      return null;
+    }
+
+    const x = Math.floor((localX / visibleWidth) * paintCanvas.width);
+    const y = Math.floor((localY / visibleHeight) * paintCanvas.height);
     
-    return { x, y };
+    return {
+      x: Math.max(0, Math.min(paintCanvas.width - 1, x)),
+      y: Math.max(0, Math.min(paintCanvas.height - 1, y)),
+    };
   };
 
   // 7. PINTURA - COMEÇAR (DOWN)
@@ -1054,8 +1087,10 @@ export default function EditorPage() {
               transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
               transition: isPanning ? "none" : "transform 0.08s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
               // Definir tamanho baseado nas proporções originais
-              width: "min(90vw, 90vh - 12rem)",
-              height: "min(90vw, 90vh - 12rem)",
+              aspectRatio: canvasAspectRatio,
+              ...(isCanvasLandscape
+                ? { width: "min(90vw, 90vh - 12rem)" }
+                : { height: "min(90vw, 90vh - 12rem)" }),
             }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
