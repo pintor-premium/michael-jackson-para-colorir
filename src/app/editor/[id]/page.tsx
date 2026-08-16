@@ -945,6 +945,18 @@ export default function EditorPage() {
       link.click();
     };
 
+    const drawOutlineOverPaint = (
+      ctx: CanvasRenderingContext2D,
+      outlineImg: HTMLImageElement,
+      width: number,
+      height: number
+    ) => {
+      ctx.save();
+      ctx.globalCompositeOperation = "multiply";
+      ctx.drawImage(outlineImg, 0, 0, width, height);
+      ctx.restore();
+    };
+
     outlineImg.onload = () => {
       const canvas = document.createElement("canvas");
       canvas.width = outlineImg.naturalWidth || 800;
@@ -958,7 +970,7 @@ export default function EditorPage() {
       const currentPaintCanvas = paintCanvasRef.current;
       if (currentPaintCanvas && currentPaintCanvas.width > 0 && currentPaintCanvas.height > 0) {
         ctx.drawImage(currentPaintCanvas, 0, 0, canvas.width, canvas.height);
-        ctx.drawImage(outlineImg, 0, 0, canvas.width, canvas.height);
+        drawOutlineOverPaint(ctx, outlineImg, canvas.width, canvas.height);
         downloadCanvas(canvas);
         return;
       }
@@ -972,7 +984,7 @@ export default function EditorPage() {
       const paintImg = new Image();
       paintImg.onload = () => {
         ctx.drawImage(paintImg, 0, 0, canvas.width, canvas.height);
-        ctx.drawImage(outlineImg, 0, 0, canvas.width, canvas.height);
+        drawOutlineOverPaint(ctx, outlineImg, canvas.width, canvas.height);
         downloadCanvas(canvas);
       };
       paintImg.src = painting.canvasData;

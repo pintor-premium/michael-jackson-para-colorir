@@ -106,7 +106,10 @@ export default function GalleryPage() {
           ctx.fillStyle = "#ffffff";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(imgPaint, 0, 0, canvas.width, canvas.height);
+          ctx.save();
+          ctx.globalCompositeOperation = "multiply";
           ctx.drawImage(imgOutline, 0, 0, canvas.width, canvas.height);
+          ctx.restore();
           
           const dataUrl = canvas.toDataURL("image/png");
           const link = document.createElement("a");
