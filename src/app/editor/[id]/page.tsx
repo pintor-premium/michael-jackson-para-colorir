@@ -58,6 +58,7 @@ export default function EditorPage() {
   // Desenho ativo
   const [isDrawing, setIsDrawing] = useState(false);
   const [lastPos, setLastPos] = useState({ x: 0, y: 0 });
+  const autoSaveSequenceRef = useRef(0);
 
   // Carregar preferências
   const preferences = useLiveQuery(async () => {
@@ -304,6 +305,7 @@ export default function EditorPage() {
   // 5. SALVAMENTO AUTOMÁTICO
   const autoSave = async (canvasUrl: string) => {
     if (!painting) return;
+    const sequence = ++autoSaveSequenceRef.current;
     setSaveStatus("salvando");
     try {
       const paintCanvas = paintCanvasRef.current;
@@ -318,9 +320,12 @@ export default function EditorPage() {
         updatedAt: Date.now(),
       });
 
+      if (sequence !== autoSaveSequenceRef.current) return;
+
       setPainting((prev) => (prev ? { ...prev, canvasData: canvasUrl, progress } : null));
       setSaveStatus("salvo");
     } catch (e) {
+      if (sequence !== autoSaveSequenceRef.current) return;
       setSaveStatus("erro");
     }
   };
@@ -378,13 +383,31 @@ export default function EditorPage() {
     const outlineData = outlineImg.data;
 
     const targetIdx = (startY * width + startX) * 4;
+    const targetColor = {
+      r: paintData[targetIdx],
+      g: paintData[targetIdx + 1],
+      b: paintData[targetIdx + 2],
+      a: paintData[targetIdx + 3],
+    };
+    const colorTolerance = 12;
+    const matchesTargetPaint = (idx: number) => (
+      Math.abs(paintData[idx] - targetColor.r) <= colorTolerance &&
+      Math.abs(paintData[idx + 1] - targetColor.g) <= colorTolerance &&
+      Math.abs(paintData[idx + 2] - targetColor.b) <= colorTolerance &&
+      Math.abs(paintData[idx + 3] - targetColor.a) <= colorTolerance
+    );
 
     // Se clicou direto em um contorno preto, não faz nada
     const isStartLine = (outlineData[targetIdx + 3] > 30 && (outlineData[targetIdx] + outlineData[targetIdx + 1] + outlineData[targetIdx + 2]) / 3 < 150);
     if (isStartLine) return;
 
     // Se já tiver pintado com a mesma cor no destino, aborta
-    if (paintData[targetIdx] === fillColor.r && paintData[targetIdx + 1] === fillColor.g && paintData[targetIdx + 2] === fillColor.b) {
+    if (
+      Math.abs(targetColor.r - fillColor.r) <= colorTolerance &&
+      Math.abs(targetColor.g - fillColor.g) <= colorTolerance &&
+      Math.abs(targetColor.b - fillColor.b) <= colorTolerance &&
+      Math.abs(targetColor.a - fillColor.a) <= colorTolerance
+    ) {
       return;
     }
 
@@ -437,7 +460,7 @@ export default function EditorPage() {
             const a = outlineData[pIdx + 3];
             const isLine = (a > 30 && (r + g + b) / 3 < 150);
 
-            if (!isLine) {
+            if (!isLine && matchesTargetPaint(pIdx)) {
               queueX[tail] = nx;
               queueY[tail] = ny;
               tail++;
