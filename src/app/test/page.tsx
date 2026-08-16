@@ -17,7 +17,7 @@ interface TestCase {
 export default function TestPage() {
   const [tests, setTests] = useState<TestCase[]>([
     { name: "Banco de Dados local (Dexie/IndexedDB)", description: "Verifica se as tabelas iniciam vazias ou carregam corretamente no IndexedDB.", status: "idle" },
-    { name: "Carregamento de Desenhos", description: "Verifica se os 20 desenhos base estão mapeados e acessíveis.", status: "idle" },
+    { name: "Carregamento de Desenhos", description: "Verifica se os 19 desenhos base estão mapeados e acessíveis.", status: "idle" },
     { name: "Simulação de Pintura no Canvas", description: "Simula o traço de coordenadas no canvas 2D.", status: "idle" },
     { name: "Fila de Desfazer/Refazer (Undo/Redo)", description: "Simula empilhar estados da tela e restaurar.", status: "idle" },
     { name: "Cálculo de Preenchimento (Flood Fill)", description: "Verifica se o algoritmo BFS preenche uma área sem estourar a memória.", status: "idle" },
@@ -55,8 +55,8 @@ export default function TestPage() {
     // --- TESTE 2: DESENHOS ---
     try {
       updateTestStatus(1, "running");
-      if (drawingsData.length !== 20) {
-        throw new Error(`Mapeamento incompleto. Esperado 20 desenhos, encontrado ${drawingsData.length}.`);
+      if (drawingsData.length !== 19) {
+        throw new Error(`Mapeamento incompleto. Esperado 19 desenhos, encontrado ${drawingsData.length}.`);
       }
       updateTestStatus(1, "passed");
     } catch (e: any) {

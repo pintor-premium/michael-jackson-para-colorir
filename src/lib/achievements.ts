@@ -66,7 +66,7 @@ export const triggerDrawingCompleted = async () => {
       const colDrawings = drawingsData.filter((d) => d.collectionId === colId).map(d => d.id);
       const colDrawingsCompleted = completedList.filter(p => colDrawings.includes(p.drawingId));
       if (colDrawingsCompleted.length >= colDrawings.length) {
-        await updateAchievementProgress("collection_complete", 4);
+        await updateAchievementProgress("collection_complete", 1);
         break; // encontrou uma completa, libera conquista
       }
     }

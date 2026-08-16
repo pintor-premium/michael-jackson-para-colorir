@@ -44,30 +44,27 @@ while ((match = drawingIdRegex.exec(content)) !== null) {
   }
 }
 console.log(`   - Encontrados ${drawingIds.length} desenhos únicos cadastrados.`);
-if (drawingIds.length !== 20) {
-  console.error("❌ ERRO: O aplicativo precisa ter exatamente 20 desenhos mapeados.");
+if (drawingIds.length !== 19) {
+  console.error("❌ ERRO: O aplicativo precisa ter exatamente 19 desenhos mapeados.");
   process.exit(1);
 }
 
 // Validar integridade dos arquivos em public/drawings
 console.log("3. Validando existência dos arquivos físicos de contorno...");
 const publicPath = path.join(__dirname, "../public");
-const folders = ["silhouettes", "stage", "dance", "fashion", "patterns"];
+const folderPath = path.join(publicPath, "drawings", "michael");
 
-folders.forEach((folder) => {
-  const folderPath = path.join(publicPath, "drawings", folder);
-  if (!fs.existsSync(folderPath)) {
-    console.error(`❌ ERRO: Pasta public/drawings/${folder} não existe.`);
-    process.exit(1);
-  }
-  
-  const files = fs.readdirSync(folderPath).filter(f => f.endsWith(".png"));
-  console.log(`   - Pasta ${folder}: ${files.length} arquivos PNG encontrados.`);
-  if (files.length === 0) {
-    console.error(`❌ ERRO: Pasta public/drawings/${folder} está vazia.`);
-    process.exit(1);
-  }
-});
+if (!fs.existsSync(folderPath)) {
+  console.error("❌ ERRO: Pasta public/drawings/michael não existe.");
+  process.exit(1);
+}
+
+const files = fs.readdirSync(folderPath).filter((f) => f.endsWith(".jpg"));
+console.log(`   - Pasta michael: ${files.length} arquivos JPG encontrados.`);
+if (files.length !== 19) {
+  console.error("❌ ERRO: A pasta public/drawings/michael precisa ter exatamente 19 JPGs.");
+  process.exit(1);
+}
 
 console.log("--------------------------------------------------");
 console.log("✅ TODOS OS TESTES DE INTEGRIDADE PASSARAM!");
