@@ -886,16 +886,20 @@ export default function EditorPage() {
   // 9. CONCLUSÃO E CELEBRAÇÃO (CONFETE E CONQUISTAS)
   const handleCompleteDrawing = async () => {
     if (!painting) return;
+    const paintCanvas = paintCanvasRef.current;
+    const canvasData = paintCanvas?.toDataURL() || painting.canvasData;
 
     // Atualizar no IndexedDB que está concluído
     await db.paintings.update(painting.id, {
+      canvasData,
+      baseImagePath: drawing.path,
       isCompleted: 1,
       completedAt: Date.now(),
       progress: 100,
       updatedAt: Date.now(),
     });
 
-    setPainting((prev) => prev ? { ...prev, isCompleted: 1, progress: 100 } : null);
+    setPainting((prev) => prev ? { ...prev, canvasData, baseImagePath: drawing.path, isCompleted: 1, progress: 100 } : null);
 
     // Rodar conquistas
     await triggerDrawingCompleted();
@@ -930,37 +934,49 @@ export default function EditorPage() {
   const handleDownloadFromModal = () => {
     if (!painting) return;
     
-    // Mesclar e baixar como PNG
     const outlineImg = new Image();
-    const paintImg = new Image();
-
     outlineImg.src = drawing.path;
-    paintImg.src = painting.canvasData;
 
-    let loadedCount = 0;
-    const mergeAndDownload = () => {
-      loadedCount++;
-      if (loadedCount === 2) {
-        const canvas = document.createElement("canvas");
-        canvas.width = outlineImg.naturalWidth || 800;
-        canvas.height = outlineImg.naturalHeight || 800;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(paintImg, 0, 0, canvas.width, canvas.height);
-          ctx.drawImage(outlineImg, 0, 0, canvas.width, canvas.height);
-          
-          const dataUrl = canvas.toDataURL("image/png");
-          const link = document.createElement("a");
-          link.href = dataUrl;
-          link.download = `${painting.title}.png`;
-          link.click();
-        }
-      }
+    const downloadCanvas = (canvas: HTMLCanvasElement) => {
+      const dataUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `${painting.title}.png`;
+      link.click();
     };
-    outlineImg.onload = mergeAndDownload;
-    paintImg.onload = mergeAndDownload;
+
+    outlineImg.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = outlineImg.naturalWidth || 800;
+      canvas.height = outlineImg.naturalHeight || 800;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const currentPaintCanvas = paintCanvasRef.current;
+      if (currentPaintCanvas && currentPaintCanvas.width > 0 && currentPaintCanvas.height > 0) {
+        ctx.drawImage(currentPaintCanvas, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(outlineImg, 0, 0, canvas.width, canvas.height);
+        downloadCanvas(canvas);
+        return;
+      }
+
+      if (!painting.canvasData) {
+        ctx.drawImage(outlineImg, 0, 0, canvas.width, canvas.height);
+        downloadCanvas(canvas);
+        return;
+      }
+
+      const paintImg = new Image();
+      paintImg.onload = () => {
+        ctx.drawImage(paintImg, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(outlineImg, 0, 0, canvas.width, canvas.height);
+        downloadCanvas(canvas);
+      };
+      paintImg.src = painting.canvasData;
+    };
   };
 
   // Toggle fullscreen
