@@ -27,6 +27,13 @@ export const metadata: Metadata = {
   title: `${appConfig.appName} — ${appConfig.appSubtitle}`,
   description: "Um livro de colorir divertido, interativo e 100% offline para crianças e fãs de todas as idades.",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
