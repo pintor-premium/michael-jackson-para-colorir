@@ -4,6 +4,7 @@ const ASSETS_TO_CACHE = [
   "/manifest.json",
   "/globals.css",
   "/favicon.ico",
+  "/pagina-carregamento.png",
   "/drawings/michael-atual/desenho-19.jpg",
   "/drawings/michael-atual/desenho-01.jpg",
   "/drawings/michael-atual/desenho-02.jpg",
