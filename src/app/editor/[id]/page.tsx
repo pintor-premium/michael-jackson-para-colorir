@@ -1371,9 +1371,9 @@ export default function EditorPage() {
 
       {/* 3. MOBILE BAR CONTROLS (Oculto no Modo Zen) */}
       {!isZenMode && (
-        <footer className="md:hidden bg-bg-card border-t border-gray-800 px-4 py-3 z-30 shrink-0 select-none flex flex-col gap-3">
+        <footer className="md:hidden bg-bg-card border-t border-gray-800 px-4 py-3 z-30 shrink-0 select-none flex flex-col gap-3 max-h-[42vh]">
           {/* Paletas de Cores Rápida Mobile */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1.5 -mx-4 px-4 scrollbar-none">
+          <div className="hidden">
             {colorPalettes[0].colors.map((color) => (
               <button
                 key={color}
@@ -1396,6 +1396,87 @@ export default function EditorPage() {
                 style={{ backgroundColor: color }}
               />
             ))}
+          </div>
+
+          <div className="overflow-y-auto overscroll-contain pr-1 -mr-1 space-y-3">
+            <div className="flex items-center justify-between bg-bg-dark rounded-2xl border border-gray-800 p-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div
+                  className="w-9 h-9 rounded-xl border border-white/20 shrink-0"
+                  style={{ backgroundColor: activeColor }}
+                />
+                <div className="min-w-0">
+                  <p className="font-fredoka font-bold text-xs text-white">Cor Ativa</p>
+                  <p className="text-[10px] font-mono text-gray-500 uppercase">{activeColor}</p>
+                </div>
+              </div>
+              <button
+                onClick={toggleFavoriteColor}
+                title="Favoritar Cor"
+                className="w-9 h-9 rounded-xl bg-bg-card border border-gray-850 flex items-center justify-center text-gray-400 active:scale-95 cursor-pointer shrink-0"
+                style={{ minWidth: "36px", minHeight: "36px" }}
+              >
+                <Heart
+                  className={`w-4 h-4 ${favoriteColors.includes(activeColor) ? "fill-red-accent text-red-accent" : ""}`}
+                />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {colorPalettes.map((palette) => (
+                <div key={palette.name} className="space-y-1.5">
+                  <span className="text-[10px] font-fredoka font-semibold text-gray-400">{palette.name}</span>
+                  <div className="grid grid-cols-8 gap-2">
+                    {palette.colors.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => handleSelectColor(color)}
+                        className={`w-8 aspect-square rounded-xl border border-white/10 transition-transform active:scale-90 cursor-pointer ${
+                          activeColor === color ? "ring-2 ring-purple ring-offset-2 ring-offset-bg-card scale-110" : ""
+                        }`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {favoriteColors.length > 0 && (
+              <div className="space-y-2 pt-2 border-t border-gray-850">
+                <span className="text-[10px] font-fredoka font-semibold text-gray-400">Favoritas</span>
+                <div className="flex flex-wrap gap-2">
+                  {favoriteColors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => handleSelectColor(color)}
+                      className={`w-8 aspect-square rounded-xl border border-white/10 transition-transform active:scale-90 cursor-pointer ${
+                        activeColor === color ? "ring-2 ring-purple ring-offset-2 ring-offset-bg-card scale-110" : ""
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {recentColors.length > 0 && (
+              <div className="space-y-2 pt-2 border-t border-gray-850">
+                <span className="text-[10px] font-fredoka font-semibold text-gray-400">Recentes</span>
+                <div className="flex flex-wrap gap-2">
+                  {recentColors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => handleSelectColor(color)}
+                      className={`w-8 aspect-square rounded-xl border border-white/10 transition-transform active:scale-90 cursor-pointer ${
+                        activeColor === color ? "ring-2 ring-purple ring-offset-2 ring-offset-bg-card scale-110" : ""
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Ferramentas Mobile */}
